@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\CitasController;
+use App\Http\Controllers\HistoriasController;
 
 // 1. Página principal para el paciente
 Route::get('/', function () {
@@ -23,6 +24,8 @@ Route::get('/descargar-ticket/{token}', [CitasController::class, 'downloadTicket
 Route::middleware(['auth', 'verified'])->group(function () {
     // El Dashboard
     Route::get('/dashboard', [CitasController::class, 'index'])->name('dashboard');
+    Route::get('/admin/historia/{cedula}', [HistoriasController::class, 'show'])->name('historia.show');
+    Route::post('/admin/historia/actualizar', [HistoriasController::class, 'update'])->name('historia.update');
 });
 
 // Nota: Eliminamos el require de auth.php porque tus rutas de autenticación 
