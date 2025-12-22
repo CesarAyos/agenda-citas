@@ -9,21 +9,17 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
-    {
-        Schema::create('historias', function (Blueprint $table) {
-            $table->id();
-            // Definimos la cédula como única para evitar duplicados a nivel de DB
-            $table->string('cedula')->unique();
-            $table->string('nombre_completo');
-            $table->string('numero_historia')->unique();
-            
-            // Usamos nullable() para que no de error si el campo va vacío
-            $table->text('observaciones')->nullable(); 
-            
-            $table->timestamps();
-        });
-    }
+   public function up(): void
+{
+    Schema::create('historias', function (Blueprint $table) {
+        $table->id();
+        $table->string('cedula')->unique();
+        $table->string('nombre_completo');
+        $table->string('numero_historia')->unique(); // Agrégalo aquí directamente
+        $table->text('observaciones')->nullable();
+        $table->timestamps();
+    });
+}
 
     /**
      * Reverse the migrations.
