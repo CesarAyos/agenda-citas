@@ -25,7 +25,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // El Dashboard
     Route::get('/dashboard', [CitasController::class, 'index'])->name('dashboard');
     Route::get('/admin/historia/{cedula}', [HistoriasController::class, 'show'])->name('historia.show');
-    Route::post('/admin/historia/actualizar', [HistoriasController::class, 'update'])->name('historia.update');
+    Route::post('/admin/historia/actualizar', [HistoriasController::class, 'update'])->name('history.update');
+    
 });
 
 // Nota: Eliminamos el require de auth.php porque tus rutas de autenticación 

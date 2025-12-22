@@ -9,33 +9,42 @@ use Inertia\Inertia;
 
 class HistoriasController extends Controller
 {
-    public function show($cedula)
-    {
-        // Usamos el nombre exacto de tu modelo
-        $historia = historias::where('cedula', $cedula)->first();
+    // app/Http/Controllers/HistoriasController.php
 
-        if (!$historia) {
-            $cita = citas::where('cedula', $cedula)->first();
-            
-            $historia = historias::create([
-                'cedula' => $cedula,
-                'nombre_completo' => $cita ? ($cita->nombre . ' ' . $cita->apellido) : 'Paciente Sin Nombre',
-                'observaciones' => '--- Inicio de Historia Médica ---'
-            ]);
-        }
+public function show($cedula)
+{
+    $historia = \App\Models\historias::where('cedula', $cedula)->first();
 
-        return Inertia::render('Admin/historia', [
-            'historia' => $historia
+    if (!$historia) {
+        $cita = \App\Models\citas::where('cedula', $cedula)->first();
+        
+        $historia = \App\Models\historias::create([
+            'cedula' => $cedula,
+            'nombre_completo' => $cita ? ($cita->nombre . ' ' . $cita->apellido) : 'Paciente Sin Nombre',
+            'observations' => '--- Inicio de Historia Médica ---',
+            'numero_historia' => null // Se asignará manualmente desde el Dashboard/Ficha
         ]);
     }
 
-    public function update(Request $request)
-    {
-        $historia = historias::findOrFail($request->id);
-        $historia->update([
-            'observaciones' => $request->observaciones
-        ]);
+    // ESTA LÍNEA ES LA QUE CAUSA EL ERROR:
+    // Asegúrate de que coincida con el archivo en resources/js/Pages/Admin/
+    return \Inertia\Inertia::render('Admin/MedicalHistoria', [ 
+        'historia' => $historia
+    ]);
+}
 
-        return back()->with('message', 'Historia actualizada correctamente');
-    }
+   public function update(Request $request)
+{
+    // Validamos que el ID exista
+    $historia = \App\Models\historias::findOrFail($request->id);
+
+    // Actualizamos AMBOS campos
+    $historia->update([
+        'numero_historia' => $request->numero_historia,
+        'observations'    => $request->observations,
+    ]);
+
+    // Redireccionamos de vuelta con un mensaje de éxito
+    return redirect()->route('dashboard')->with('message', 'Historia actualizada y guardada.');
+}
 }

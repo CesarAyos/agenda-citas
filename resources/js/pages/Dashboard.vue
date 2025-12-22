@@ -2,10 +2,9 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { dashboard } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link } from '@inertiajs/vue3'; // Importar Link correctamente
+import { Head, Link } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 
-// 1. Definir los datos que vienen de Laravel (Interfaz TS)
 interface Cita {
     id: number;
     nombre: string;
@@ -13,13 +12,13 @@ interface Cita {
     cedula: string;
     cita_hora: string;
     token_unique: string;
+    numero_ficha?: string; // Nuevo campo opcional
 }
 
 const props = defineProps<{
     citas: Cita[]
 }>();
 
-// 2. Lógica del buscador
 const search = ref('');
 
 const citasFiltradas = computed(() => {
@@ -39,14 +38,14 @@ const breadcrumbs: BreadcrumbItem[] = [
 </script>
 
 <template>
-    <Head title="Panel de Citas" />
+    <Head title="Dashboard" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-1 flex-col gap-4 p-4">
             <div class="relative min-h-[100vh] flex-1 overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border bg-white dark:bg-gray-900 p-6">
                 
                 <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-                    <h2 class="text-xl font-bold dark:text-white">Citas Agendadas (Venezuela UTC-4)</h2>
+                    <h2 class="text-xl font-bold dark:text-white text-gray-800">Citas Agendadas (Venezuela UTC-4)</h2>
                     
                     <div class="relative w-full md:w-80">
                         <span class="absolute inset-y-0 left-0 flex items-center pl-3">
@@ -68,6 +67,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                         <thead class="border-b bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
                             <tr>
                                 <th class="p-3 uppercase font-bold">Paciente</th>
+                                <th class="p-3 uppercase font-bold text-blue-600 dark:text-blue-400">N° Historia</th>
                                 <th class="p-3 uppercase font-bold">Cédula</th>
                                 <th class="p-3 uppercase font-bold">Fecha y Hora</th>
                                 <th class="p-3 text-center uppercase font-bold">Acciones</th>
@@ -78,9 +78,16 @@ const breadcrumbs: BreadcrumbItem[] = [
                                 <td class="p-3 uppercase dark:text-gray-200">
                                     {{ cita.nombre }} {{ cita.apellido }}
                                 </td>
+                                
+                                <td class="p-3">
+                                    <span :class="cita.numero_ficha === 'Sin asignar' ? 'text-red-500 italic text-xs' : 'font-bold dark:text-green-400 text-green-700'">
+                                        {{ cita.numero_ficha }}
+                                    </span>
+                                </td>
+
                                 <td class="p-3 font-mono dark:text-gray-200">{{ cita.cedula }}</td>
                                 <td class="p-3 font-mono text-xs dark:text-gray-300">
-                                    {{ new Date(cita.cita_hora).toLocaleString() }}
+                                    {{ cita.cita_hora }}
                                 </td>
                                 <td class="p-3 text-center space-x-2">
                                     <Link :href="'/admin/historia/' + cita.cedula" 
@@ -97,8 +104,8 @@ const breadcrumbs: BreadcrumbItem[] = [
                             </tr>
                             
                             <tr v-if="citasFiltradas.length === 0">
-                                <td colspan="4" class="p-10 text-center text-gray-500 dark:text-gray-400 italic">
-                                    No se encontraron citas que coincidan con "{{ search }}"
+                                <td colspan="5" class="p-10 text-center text-gray-500 dark:text-gray-400 italic">
+                                    No se encontraron resultados.
                                 </td>
                             </tr>
                         </tbody>

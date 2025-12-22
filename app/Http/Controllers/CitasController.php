@@ -14,16 +14,23 @@ class CitasController extends Controller
     /**
      * DASHBOARD: Muestra la lista de citas al Administrador
      */
-    public function index()
-    {
-        // Obtenemos todas las citas
-        $citas = citas::orderBy('cita_hora', 'asc')->get();
+// app/Http/Controllers/CitasController.php
 
-        // Retornamos la vista del Dashboard con los datos
-        return Inertia::render('Dashboard', [
-            'citas' => $citas
-        ]);
-    }
+public function index()
+{
+    // Obtenemos las citas y les adjuntamos el numero_historia buscando en la tabla historias
+    $citas = citas::all()->map(function ($cita) {
+        $historia = \App\Models\historias::where('cedula', $cita->cedula)->first();
+        
+        // Añadimos una propiedad extra al objeto cita para la vista
+        $cita->numero_ficha = $historia ? $historia->numero_historia : 'Sin asignar';
+        return $cita;
+    });
+
+    return Inertia::render('Dashboard', [
+        'citas' => $citas
+    ]);
+}
 
     /**
      * STORE: Procesa el formulario del paciente

@@ -6,5 +6,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class historias extends Model // <--- Debe coincidir con el nombre del archivo
 {
-    protected $fillable = ['cedula', 'nombre_completo', 'observaciones'];
+    protected $fillable = ['cedula', 'nombre_completo','numero_historia', 'observaciones'];
 }

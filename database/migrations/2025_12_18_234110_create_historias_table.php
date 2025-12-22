@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('cedula')->unique(); // Coincidencia exacta
             $table->string('nombre_completo');
             $table->text('observaciones');
+            $table->string('numero_historia')->nullable()->after('cedula');
             $table->timestamps();
         });
     }
