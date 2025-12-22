@@ -11,24 +11,22 @@ use Inertia\Inertia;
 
 class CitasController extends Controller
 {
-    /**
-     * DASHBOARD: Muestra la lista de citas al Administrador
-     */
-// app/Http/Controllers/CitasController.php
-
+   
 public function index()
 {
-    // Obtenemos las citas y les adjuntamos el numero_historia buscando en la tabla historias
-    $citas = citas::all()->map(function ($cita) {
+    // 1. Lista de Citas (con su número de historia vinculado)
+    $citas = \App\Models\citas::all()->map(function ($cita) {
         $historia = \App\Models\historias::where('cedula', $cita->cedula)->first();
-        
-        // Añadimos una propiedad extra al objeto cita para la vista
         $cita->numero_ficha = $historia ? $historia->numero_historia : 'Sin asignar';
         return $cita;
     });
 
-    return Inertia::render('Dashboard', [
-        'citas' => $citas
+    // 2. Lista de todos los Pacientes registrados (la base de datos maestra)
+    $pacientesMaster = \App\Models\historias::all();
+
+    return \Inertia\Inertia::render('Dashboard', [
+        'citas' => $citas,
+        'pacientesMaster' => \App\Models\historias::all(),
     ]);
 }
 
@@ -94,4 +92,28 @@ public function index()
         
         return $pdf->download('ticket-cita-'.$cita->cedula.'.pdf');
     }
+
+
+    public function registrarPaciente(Request $request)
+{
+    // 1. Validamos, pero quitamos la regla 'unique' para que no rebote
+    $request->validate([
+        'cedula' => 'required|string',
+        'nombre_completo' => 'required|string',
+        'numero_historia' => 'required|string',
+    ]);
+
+    // 2. Buscamos al paciente por cédula. Si existe, lo actualiza. Si no, lo crea.
+    $paciente = \App\Models\historias::updateOrCreate(
+        ['cedula' => $request->cedula], // Condición de búsqueda
+        [
+            'nombre_completo' => $request->nombre_completo,
+            'numero_historia' => $request->numero_historia,
+            // Agrega otros campos necesarios aquí
+        ]
+    );
+
+
+    return back()->with('message', 'Paciente procesado correctamente');
+}
 }

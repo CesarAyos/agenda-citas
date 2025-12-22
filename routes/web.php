@@ -16,6 +16,7 @@ Route::get('/agendar', function () {
 
 // 2. Proceso de agendar (POST)
 Route::post('/agendar', [CitasController::class, 'store'])->name('citas.store');
+Route::post('/admin/pacientes/registrar', [HistoriasController::class, 'store'])->name('pacientes.store');
 
 // 3. Descarga del ticket
 Route::get('/descargar-ticket/{token}', [CitasController::class, 'downloadTicket'])->name('appointment.success');

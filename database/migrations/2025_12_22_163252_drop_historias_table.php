@@ -11,10 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('historias', function (Blueprint $table) {
-            $table->string('numero_historia')->after('cedula')->nullable();
-            $table->text('observaciones')->nullable()->change();
-        });
+        //
     }
 
     /**
@@ -22,8 +19,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('historias', function (Blueprint $table) {
-          $table->dropColumn('numero_historia');
-        });
+        //
     }
 };

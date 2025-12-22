@@ -47,4 +47,27 @@ public function show($cedula)
     // Redireccionamos de vuelta con un mensaje de éxito
     return redirect()->route('dashboard')->with('message', 'Historia actualizada y guardada.');
 }
+
+public function store(Request $request)
+{
+    // Validamos que la cédula no esté repetida en la tabla historias
+    $request->validate([
+        'cedula' => 'required|unique:historias,cedula',
+        'nombre_completo' => 'required',
+        'numero_historia' => 'required|unique:historias,numero_historia'
+    ]);
+
+    \App\Models\historias::create([
+        'cedula' => $request->cedula,
+        'nombre_completo' => $request->nombre_completo,
+        'numero_historia' => $request->numero_historia,
+        'observations' => 'Paciente pre-registrado por el administrador.'
+    ]);
+
+    return back()->with('message', 'Paciente registrado exitosamente en la base de datos.');
+}
+
+
+
+
 }
