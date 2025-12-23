@@ -12,13 +12,13 @@ interface CustomProps {
     };
 }
 
-interface PageProps {
-    flash: {
-        successToken?: string;
-        error?: string;
-    };
-    [key: string]: any;
-}
+// interface PageProps {
+//     flash: {
+//         successToken?: string;
+//         error?: string;
+//     };
+//     [key: string]: any;
+// }
 
 const page = usePage<import('@inertiajs/core').PageProps & CustomProps>();
 

@@ -1,22 +1,41 @@
-<script setup>
+<script setup lang="ts">
 import { useForm } from '@inertiajs/vue3';
 
-const props = defineProps({
-    historia: Object
-});
+// 1. Definimos la estructura de la Historia para TypeScript
+interface Historia {
+    id: number;
+    cedula: string;
+    nombre_completo: string;
+    numero_historia: string;
+    observaciones?: string;
+    [key: string]: any;
+}
 
-// Iniciamos el formulario con los datos que ya existen en la base de datos
+// 2. Definimos los props. Usamos el signo '?' en historia por si el objeto llega nulo
+const props = defineProps<{
+    historia?: Historia
+}>();
+
+// 3. Inicializamos el formulario con protección contra valores nulos
 const form = useForm({
-    id: props.historia.id,
-    numero_historia: props.historia.numero_historia || '', 
-    observations: props.historia.observations || ''
+    id: props.historia?.id ?? null,
+    numero_historia: props.historia?.numero_historia ?? '',
+    observaciones: props.historia?.observaciones ?? ''
 });
 
-// En MedicalHistoria.vue
+/**
+ * Función para enviar los datos al servidor
+ */
 const submit = () => {
-    form.post('/admin/historia/actualizar', { // <--- URL manual
+    form.post('/admin/historia/actualizar', {
         preserveScroll: true,
-        onSuccess: () => alert('¡Guardado con éxito!')
+        onSuccess: () => {
+            // Puedes usar una notificación más elegante aquí luego
+            alert('¡Historia clínica actualizada con éxito!');
+        },
+        onError: (errors) => {
+            console.error("Errores al guardar:", errors);
+        }
     });
 };
 </script>

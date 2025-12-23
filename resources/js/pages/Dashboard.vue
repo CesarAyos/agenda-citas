@@ -4,7 +4,7 @@ import { dashboard } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
-import { route } from 'ziggy-js';
+
 
 // 1. DEFINICIÓN DE INTERFACES
 interface Cita {
