@@ -17,7 +17,8 @@ return new class extends Migration
             $table->string('nombre');
             $table->string('apellido');
             $table->integer('edad');
-            $table->string('cedula')->index(); // Cédula para búsqueda rápida
+            $table->string('cedula')->index(); 
+            $table->string('departamento');
             $table->dateTime('cita_hora'); // Fecha y hora de la cita
             $table->timestamps();
         });

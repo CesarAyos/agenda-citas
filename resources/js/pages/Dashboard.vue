@@ -13,6 +13,7 @@ interface Cita {
     apellido: string;
     cedula: string;
     cita_hora: string;
+    departamento: string;
     token_unique: string;
     numero_ficha?: string; 
 }
@@ -22,6 +23,7 @@ interface Paciente {
     cedula: string;
     nombre_completo: string;
     numero_history: string; 
+    departamento: string;
     numero_historia?: string; 
 }
 
@@ -38,7 +40,7 @@ const vistaActual = ref('citas');
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Dashboard',
+        title: 'Panel de Control - Central de Citas',
         href: dashboard().url,
     },
 ];
@@ -90,7 +92,7 @@ const abrirModal = () => {
 </script>
 
 <template>
-    <Head title="Dashboard" />
+    <Head title="Dashboard"></Head>
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-1 flex-col gap-4 p-4">
@@ -98,7 +100,7 @@ const abrirModal = () => {
                 
                 <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4 border-b pb-4 dark:border-gray-700">
                     <div>
-                        <h2 class="text-xl font-bold dark:text-white text-gray-800">Panel Médico</h2>
+                       
                         <button @click="abrirModal" class="mt-2 bg-indigo-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-indigo-700 flex items-center gap-2 transition text-sm">
                             <span>+</span> Registrar Paciente
                         </button>
@@ -130,6 +132,7 @@ const abrirModal = () => {
                                 <th class="p-3">Paciente</th>
                                 <th class="p-3">N° Historia</th>
                                 <th class="p-3">Cédula</th>
+                                <th class="p-3">Departamento</th>
                                 <th class="p-3 text-center">Acciones</th>
                             </tr>
                         </thead>
@@ -138,6 +141,7 @@ const abrirModal = () => {
                                 <td class="p-3 uppercase font-medium dark:text-gray-200">{{ cita.nombre }} {{ cita.apellido }}</td>
                                 <td class="p-3 text-blue-600 font-bold">{{ cita.numero_ficha }}</td>
                                 <td class="p-3 font-mono dark:text-gray-300">{{ cita.cedula }}</td>
+                                <td class="p-3 font-mono dark:text-gray-300">{{ cita.departamento }}</td>
                                 <td class="p-3 text-center">
                                     <Link :href="'/admin/historia/' + cita.cedula" class="bg-green-600 text-white px-3 py-1 rounded text-xs font-bold">📂 Historia</Link>
                                 </td>
@@ -161,9 +165,11 @@ const abrirModal = () => {
                                 <td class="p-3 uppercase font-medium dark:text-white">{{ paciente.nombre_completo }}</td>
                                 <td class="p-3 font-bold text-green-600 dark:text-green-400">{{ paciente.numero_historia || paciente.numero_history }}</td>
                                 <td class="p-3 font-mono dark:text-gray-300">{{ paciente.cedula }}</td>
+                                
                                 <td class="p-3 text-center">
                                     <Link :href="'/admin/historia/' + paciente.cedula" class="text-indigo-600 hover:underline font-bold transition">Editar numero de Historia</Link>
                                 </td>
+                               
                             </tr>
                         </tbody>
                     </table>

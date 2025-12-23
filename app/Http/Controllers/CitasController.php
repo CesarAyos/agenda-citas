@@ -34,53 +34,42 @@ public function index()
      * STORE: Procesa el formulario del paciente
      */
     public function store(Request $request) 
-    {
-        $request->validate([
-            'nombre' => 'required|string',
-            'apellido' => 'required|string',
-            'edad' => 'required|integer',
-            'cedula' => 'required|string',
-            'cita_hora' => 'required|date',
-        ]);
+{
+    $request->validate([
+        'nombre' => 'required|string',
+        'apellido' => 'required|string',
+        'edad' => 'required|integer',
+        'cedula' => 'required|string',
+        'departamento' => 'required|string',
+        'cita_hora' => 'required|date',
+    ]);
 
-        $fechaCita = Carbon::parse($request->cita_hora);
-        $hoy = Carbon::now('America/Caracas');
+    $fechaCita = Carbon::parse($request->cita_hora);
 
-        // REGLA: Bloqueo hoy después de las 10:00 AM
-        if ($fechaCita->isToday() && $hoy->hour >= 10) {
-            return back()->withErrors(['error' => 'Ya no se permiten citas para hoy después de las 10:00 AM.']);
-        }
+    // Mantenemos solo la REGLA de Intervalo (opcional, para evitar duplicados exactos)
+    // Si también quieres permitir citas a la misma hora, puedes borrar este bloque.
+    $choque = citas::whereBetween('cita_hora', [
+        $fechaCita->copy()->subMinutes(29),
+        $fechaCita->copy()->addMinutes(29)
+    ])->exists();
 
-        // REGLA: Máximo 20 cupos
-        $cuposUsados = citas::whereDate('cita_hora', $fechaCita->toDateString())->count();
-        if ($cuposUsados >= 20) {
-            return back()->withErrors(['error' => 'Lo sentimos, no hay cupos disponibles para esta fecha.']);
-        }
-
-        // REGLA: Intervalo 30 min
-        $choque = citas::whereBetween('cita_hora', [
-            $fechaCita->copy()->subMinutes(29),
-            $fechaCita->copy()->addMinutes(29)
-        ])->exists();
-
-        if ($choque) {
-            return back()->withErrors(['error' => 'Esta hora ya está ocupada.']);
-        }
-
-        // GUARDAR
-        $citaNueva = citas::create([
-            'token_unique' => strtolower(Str::random(10)), 
-            'nombre' => $request->nombre,
-            'apellido' => $request->apellido,
-            'edad' => $request->edad,
-            'cedula' => $request->cedula,
-            'cita_hora' => $fechaCita,
-        ]);
-
-        // LA CLAVE: Redirigir a "/" enviando el token en la sesión (Flash data)
-        // Esto evita el error de "Method GET not supported"
-        return redirect('/')->with('successToken', $citaNueva->token_unique);
+    if ($choque) {
+        return back()->withErrors(['error' => 'Esta hora ya está ocupada por otro paciente.']);
     }
+
+    // GUARDAR SIN LÍMITES
+    $citaNueva = citas::create([
+        'token_unique' => strtolower(Str::random(10)), 
+        'nombre' => $request->nombre,
+        'apellido' => $request->apellido,
+        'edad' => $request->edad,
+        'cedula' => $request->cedula,
+        'departamento' => $request->departamento,
+        'cita_hora' => $fechaCita,
+    ]);
+
+    return redirect('/')->with('successToken', $citaNueva->token_unique);
+}
 
     /**
      * PDF: Descarga del ticket

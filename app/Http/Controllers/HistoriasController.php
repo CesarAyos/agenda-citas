@@ -20,9 +20,9 @@ public function show($cedula)
         
         $historia = \App\Models\historias::create([
             'cedula' => $cedula,
-            'nombre_completo' => $cita ? ($cita->nombre . ' ' . $cita->apellido) : 'Paciente Sin Nombre',
-            'observations' => '--- Inicio de Historia Médica ---',
-            'numero_historia' => null // Se asignará manualmente desde el Dashboard/Ficha
+            'nombre_completo' => request('nombre_completo') ?? 'Nombre Temporal', // Asegúrate de tener el nombre
+            'numero_historia' => 'H-' . time(), // O la lógica que uses para generar números
+            'observaciones'   => 'Creada automáticamente al consultar',
         ]);
     }
 

@@ -14,6 +14,7 @@ class citas extends Model
         'apellido',
         'edad',
         'cedula',
+        'departamento',
         'cita_hora',
     ];
 
