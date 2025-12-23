@@ -1,3 +1,4 @@
+// Mantén EXACTAMENTE esta configuración - es la estándar para Laravel
 import { wayfinder } from '@laravel/vite-plugin-wayfinder';
 import tailwindcss from '@tailwindcss/vite';
 import vue from '@vitejs/plugin-vue';
