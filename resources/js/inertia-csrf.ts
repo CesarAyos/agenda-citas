@@ -5,10 +5,18 @@ const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribut
 if (csrfToken) {
     // Interceptor para todas las peticiones Inertia
     router.on('before', (event) => {
+        const visit: any = event.detail.visit;
+
+        // Forzar envío de cookies/credenciales en todas las visitas (ayuda a evitar 419)
+        visit.options = {
+            ...(visit.options || {}),
+            credentials: 'include'
+        };
+
         // Solo para métodos que necesitan CSRF
-        if (['post', 'put', 'patch', 'delete'].includes(event.detail.visit.method.toLowerCase())) {
-            const { data, headers = {} } = event.detail.visit;
-            
+        if (['post', 'put', 'patch', 'delete'].includes(visit.method.toLowerCase())) {
+            const { data, headers = {} } = visit;
+
             // Manejar tanto objetos como FormData
             if (data instanceof FormData) {
                 // Para FormData, agregar como campo
@@ -17,31 +25,25 @@ if (csrfToken) {
                 }
             } else if (data && typeof data === 'object') {
                 // Para objetos, agregar propiedad
-                event.detail.visit.data = {
+                visit.data = {
                     ...data,
                     _token: csrfToken
                 };
             } else {
                 // Si data es null/undefined, crear objeto
-                event.detail.visit.data = { _token: csrfToken };
+                visit.data = { _token: csrfToken };
             }
-            
+
             // Agregar headers
-            event.detail.visit.headers = {
+            visit.headers = {
                 ...headers,
                 'X-CSRF-TOKEN': csrfToken,
                 'X-Requested-With': 'XMLHttpRequest'
             };
-
-            // Forzar envío de cookies/credenciales (útil cuando el frontend corre desde otro origen - Vite dev)
-            // TypeScript upstream types for PendingVisit don't include `options`, así que casteamos.
-            const visit: any = event.detail.visit;
-            visit.options = {
-                ...(visit.options || {}),
-                credentials: 'include'
-            };
         }
     });
-    
+
     console.log('✅ CSRF configurado para Inertia');
+} else {
+    console.warn('⚠️ Meta CSRF faltante: añade `meta name="csrf-token"` en la plantilla de producción.');
 }
