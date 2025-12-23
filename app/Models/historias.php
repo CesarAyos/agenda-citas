@@ -2,9 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-
-class historias extends Model // <--- Debe coincidir con el nombre del archivo
+// Backwards-compatible alias class. New code should use `Historia`.
+class historias extends Historia
 {
-    protected $fillable = ['cedula', 'nombre_completo','numero_historia', 'observaciones'];
+    // Intentionally empty - extends the new `Historia` model for compatibility
 }

@@ -156,7 +156,7 @@ return [
     |
     */
 
-    'domain' => env('SESSION_DOMAIN'),
+    'domain' => env('SESSION_DOMAIN', null),
 
     /*
     |--------------------------------------------------------------------------
@@ -169,7 +169,7 @@ return [
     |
     */
 
-    'secure' => env('SESSION_SECURE_COOKIE'),
+    'secure' => env('SESSION_SECURE_COOKIE', false),
 
     /*
     |--------------------------------------------------------------------------
@@ -200,7 +200,6 @@ return [
     */
 
     'same_site' => env('SESSION_SAME_SITE', 'lax'),
-
     /*
     |--------------------------------------------------------------------------
     | Partitioned Cookies
@@ -212,9 +211,6 @@ return [
     |
     */
 
-    'partitioned' => env('SESSION_PARTITIONED_COOKIE', false),
-    'domain' => env('SESSION_DOMAIN', null),
-'secure' => env('SESSION_SECURE_COOKIE', true),
-'same_site' => 'lax',
+    // Defaults above already use environment variables; no forced overrides here.
 
 ];

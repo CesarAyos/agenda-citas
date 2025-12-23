@@ -1,4 +1,4 @@
-import { router } from '@inertiajs/vue3';
+import { router } from '@inertiajs/core';
 
 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
 
@@ -31,6 +31,14 @@ if (csrfToken) {
                 ...headers,
                 'X-CSRF-TOKEN': csrfToken,
                 'X-Requested-With': 'XMLHttpRequest'
+            };
+
+            // Forzar envío de cookies/credenciales (útil cuando el frontend corre desde otro origen - Vite dev)
+            // TypeScript upstream types for PendingVisit don't include `options`, así que casteamos.
+            const visit: any = event.detail.visit;
+            visit.options = {
+                ...(visit.options || {}),
+                credentials: 'include'
             };
         }
     });

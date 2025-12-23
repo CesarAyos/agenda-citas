@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\historias; // <--- Cambiado a 'historias'
-use App\Models\citas;
+use App\Models\Historia;
+use App\Models\Cita;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -13,15 +13,15 @@ class HistoriasController extends Controller
 
 public function show($cedula)
 {
-    $historia = \App\Models\historias::where('cedula', $cedula)->first();
+    $historia = Historia::where('cedula', $cedula)->first();
 
     if (!$historia) {
-        $cita = \App\Models\citas::where('cedula', $cedula)->first();
+        $cita = Cita::where('cedula', $cedula)->first();
         
-        $historia = \App\Models\historias::create([
+        $historia = Historia::create([
             'cedula' => $cedula,
-            'nombre_completo' => request('nombre_completo') ?? 'Nombre Temporal', // Asegúrate de tener el nombre
-            'numero_historia' => 'H-' . time(), // O la lógica que uses para generar números
+            'nombre_completo' => request('nombre_completo') ?? 'Nombre Temporal',
+            'numero_historia' => 'H-' . time(),
             'observaciones'   => 'Creada automáticamente al consultar',
         ]);
     }
@@ -36,12 +36,12 @@ public function show($cedula)
    public function update(Request $request)
 {
     // Validamos que el ID exista
-    $historia = \App\Models\historias::findOrFail($request->id);
+    $historia = Historia::findOrFail($request->id);
 
     // Actualizamos AMBOS campos
     $historia->update([
         'numero_historia' => $request->numero_historia,
-        'observations'    => $request->observations,
+        'observaciones'    => $request->observations ?? $historia->observaciones,
     ]);
 
     // Redireccionamos de vuelta con un mensaje de éxito
@@ -57,11 +57,11 @@ public function store(Request $request)
         'numero_historia' => 'required|unique:historias,numero_historia'
     ]);
 
-    \App\Models\historias::create([
+    Historia::create([
         'cedula' => $request->cedula,
         'nombre_completo' => $request->nombre_completo,
         'numero_historia' => $request->numero_historia,
-        'observations' => 'Paciente pre-registrado por el administrador.'
+        'observaciones' => 'Paciente pre-registrado por el administrador.'
     ]);
 
     return back()->with('message', 'Paciente registrado exitosamente en la base de datos.');

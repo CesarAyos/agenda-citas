@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\citas; 
+use App\Models\Cita;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -15,18 +15,18 @@ class CitasController extends Controller
 public function index()
 {
     // 1. Lista de Citas (con su número de historia vinculado)
-    $citas = \App\Models\citas::all()->map(function ($cita) {
-        $historia = \App\Models\historias::where('cedula', $cita->cedula)->first();
+    $citas = Cita::all()->map(function ($cita) {
+        $historia = \App\Models\Historia::where('cedula', $cita->cedula)->first();
         $cita->numero_ficha = $historia ? $historia->numero_historia : 'Sin asignar';
         return $cita;
     });
 
     // 2. Lista de todos los Pacientes registrados (la base de datos maestra)
-    $pacientesMaster = \App\Models\historias::all();
+    $pacientesMaster = \App\Models\Historia::all();
 
     return \Inertia\Inertia::render('Dashboard', [
         'citas' => $citas,
-        'pacientesMaster' => \App\Models\historias::all(),
+        'pacientesMaster' => \App\Models\Historia::all(),
     ]);
 }
 
@@ -48,7 +48,7 @@ public function index()
 
     // Mantenemos solo la REGLA de Intervalo (opcional, para evitar duplicados exactos)
     // Si también quieres permitir citas a la misma hora, puedes borrar este bloque.
-    $choque = citas::whereBetween('cita_hora', [
+    $choque = Cita::whereBetween('cita_hora', [
         $fechaCita->copy()->subMinutes(29),
         $fechaCita->copy()->addMinutes(29)
     ])->exists();
@@ -58,7 +58,7 @@ public function index()
     }
 
     // GUARDAR SIN LÍMITES
-    $citaNueva = citas::create([
+    $citaNueva = Cita::create([
         'token_unique' => strtolower(Str::random(10)), 
         'nombre' => $request->nombre,
         'apellido' => $request->apellido,
@@ -76,7 +76,7 @@ public function index()
      */
     public function downloadTicket($token)
     {
-        $cita = citas::where('token_unique', $token)->firstOrFail();
+        $cita = Cita::where('token_unique', $token)->firstOrFail();
         $pdf = Pdf::loadView('pdf.ticket', compact('cita'));
         
         return $pdf->download('ticket-cita-'.$cita->cedula.'.pdf');
@@ -93,7 +93,7 @@ public function index()
     ]);
 
     // 2. Buscamos al paciente por cédula. Si existe, lo actualiza. Si no, lo crea.
-    $paciente = \App\Models\historias::updateOrCreate(
+    $paciente = \App\Models\Historia::updateOrCreate(
         ['cedula' => $request->cedula], // Condición de búsqueda
         [
             'nombre_completo' => $request->nombre_completo,

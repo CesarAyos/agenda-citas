@@ -1,3 +1,30 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Ticket de Cita</title>
+        <style>
+            body { font-family: DejaVu Sans, sans-serif; }
+            .container { padding: 20px; }
+            .header { text-align:center; margin-bottom:20px }
+            .info { margin-top:10px }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h2>Ticket de Cita</h2>
+            </div>
+
+            <div class="info">
+                <p><strong>Nombre:</strong> {{ $cita->nombre }} {{ $cita->apellido }}</p>
+                <p><strong>Cédula:</strong> {{ $cita->cedula }}</p>
+                <p><strong>Fecha / Hora:</strong> {{ $cita->cita_hora }}</p>
+                <p><strong>Token:</strong> {{ $cita->token_unique }}</p>
+            </div>
+        </div>
+    </body>
+</html>
 <!DOCTYPE html>
 <html>
 <head>
