@@ -3,6 +3,9 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        
+        {{-- TOKEN CSRF CRÍTICO PARA PETICIONES POST --}}
+        <meta name="csrf-token" content="{{ csrf_token() }}">
 
         {{-- Inline script to detect system dark mode preference and apply it immediately --}}
         <script>
@@ -38,10 +41,29 @@
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
 
+        {{-- Inertia Routes --}}
+        @routes
+        
+        {{-- Vite para Inertia --}}
         @vite(['resources/js/app.ts', "resources/js/pages/{$page['component']}.vue"])
         @inertiaHead
     </head>
     <body class="font-sans antialiased">
         @inertia
+        
+        {{-- Script opcional para debug CSRF --}}
+        @if(app()->environment('production'))
+        <script>
+            // Verificar que el token CSRF esté presente
+            document.addEventListener('DOMContentLoaded', function() {
+                const token = document.querySelector('meta[name="csrf-token"]');
+                if (token && token.content) {
+                    console.log('✅ Token CSRF presente');
+                } else {
+                    console.error('❌ Token CSRF NO encontrado');
+                }
+            });
+        </script>
+        @endif
     </body>
 </html>
