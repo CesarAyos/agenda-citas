@@ -12,6 +12,7 @@ interface Historia {
 }
 
 // 2. Definimos los props. Usamos el signo '?' en historia por si el objeto llega nulo
+// hola
 const props = defineProps<{
     historia?: Historia
 }>();
