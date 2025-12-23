@@ -1,0 +1,13 @@
+node_modules
+vendor
+storage/*
+/.git
+/.github
+/.vscode
+tests
+tests/*
+database/database.sqlite
+npm-debug.log
+yarn-error.log
+pnpm-lock.yaml
+README.md
