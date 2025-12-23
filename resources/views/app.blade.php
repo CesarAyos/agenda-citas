@@ -45,7 +45,9 @@
         @routes
         
         {{-- Vite para Inertia --}}
-        @vite(['resources/js/app.ts', "resources/js/pages/{$page['component']}.vue"])
+        @if (!app()->environment('testing'))
+            @vite(['resources/js/app.ts', "resources/js/pages/{$page['component']}.vue"])
+        @endif
         @inertiaHead
     </head>
     <body class="font-sans antialiased">
