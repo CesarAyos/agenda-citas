@@ -3,8 +3,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { dashboard } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/vue3';
-import { ref, computed } from 'vue';
-
+import { ref, computed, onMounted } from 'vue';
 
 // 1. DEFINICIÓN DE INTERFACES
 interface Cita {
@@ -45,23 +44,43 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-// 4. FORMULARIO INERTIA
+// 4. FORMULARIO INERTIA CON CSRF
 const formNuevo = useForm({
     cedula: '',
     nombre_completo: '',
     numero_historia: '',
-   
+    _token: '', // ← AGREGAR ESTE CAMPO
 });
 
 // 5. MÉTODOS
 const registrarPaciente = () => {
+    // Obtener token CSRF del meta tag
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+    
+    if (csrfToken) {
+        // Asignar el token al formulario
+        formNuevo._token = csrfToken;
+        
+        // Log para debug
+        console.log('🔐 Enviando formulario con token CSRF:', csrfToken.substring(0, 20) + '...');
+    } else {
+        console.error('❌ No se encontró token CSRF en el HTML');
+    }
+
     formNuevo.post('/admin/pacientes/registrar', {
         onSuccess: () => {
             showModal.value = false;
             formNuevo.reset();
+            // Restaurar el token después del reset
+            const newToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+            if (newToken) formNuevo._token = newToken;
         },
         onError: (errors) => {
-            console.error(errors);
+            console.error('❌ Error en registro:', errors);
+            
+            // Restaurar token después de error
+            const currentToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+            if (currentToken) formNuevo._token = currentToken;
         }
     });
 };
@@ -86,9 +105,26 @@ const pacientesFiltradosMaster = computed(() => {
 });
 
 const abrirModal = () => {
-    formNuevo.clearErrors(); // Limpia los mensajes rojos previos
+    // Obtener token CSFR actual al abrir el modal
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+    if (csrfToken) {
+        formNuevo._token = csrfToken;
+    }
+    
+    formNuevo.clearErrors();
     showModal.value = true;
 };
+
+// 7. INICIALIZAR TOKEN AL MONTAR EL COMPONENTE
+onMounted(() => {
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+    if (csrfToken) {
+        formNuevo._token = csrfToken;
+        console.log('✅ Token CSRF inicializado:', csrfToken.substring(0, 20) + '...');
+    } else {
+        console.warn('⚠️ Token CSRF no encontrado en el HTML');
+    }
+});
 </script>
 
 <template>
@@ -100,7 +136,6 @@ const abrirModal = () => {
                 
                 <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4 border-b pb-4 dark:border-gray-700">
                     <div>
-                       
                         <button @click="abrirModal" class="mt-2 bg-indigo-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-indigo-700 flex items-center gap-2 transition text-sm">
                             <span>+</span> Registrar Paciente
                         </button>
@@ -169,7 +204,6 @@ const abrirModal = () => {
                                 <td class="p-3 text-center">
                                     <Link :href="'/admin/historia/' + paciente.cedula" class="text-indigo-600 hover:underline font-bold transition">Editar numero de Historia</Link>
                                 </td>
-                               
                             </tr>
                         </tbody>
                     </table>
@@ -177,6 +211,7 @@ const abrirModal = () => {
             </div>
         </div>
 
+        <!-- MODAL -->
         <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
             <div class="bg-white dark:bg-gray-900 rounded-xl shadow-2xl w-full max-w-md p-6 border dark:border-gray-700">
                 <div class="flex justify-between items-center mb-4 border-b pb-2 dark:border-gray-700">
@@ -224,6 +259,9 @@ const abrirModal = () => {
                         >
                         <p v-if="formNuevo.errors.numero_historia" class="text-red-500 text-xs mt-1 font-semibold">{{ formNuevo.errors.numero_historia }}</p>
                     </div>
+
+                    <!-- Campo oculto para token CSRF (opcional) -->
+                    <input type="hidden" name="_token" :value="formNuevo._token">
 
                     <div class="flex justify-end gap-3 pt-4 border-t dark:border-gray-700 mt-2">
                         <button type="button" @click="showModal = false" class="text-gray-500 hover:text-gray-700 font-medium px-4 py-2 transition">Cancelar</button>
